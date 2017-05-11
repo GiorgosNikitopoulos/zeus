@@ -1,4 +1,3 @@
-
 Helios is an open-source project.
 
 Significant contributors:
