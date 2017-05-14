@@ -43,11 +43,11 @@ class PairShuffle:
             temporary_variable = (w[i] * neff_beta[pi[i]]) % modulus
             wbetasum = (wbetasum + temporary_variable) % modulus
             temporary_variable = (w[piinv[i]] - u[i]) % modulus
-            temporary_variable_2 = (alpha[i] * temporary_variable) % modulus
+            temporary_variable_2 = pow(alpha[i], temporary_variable, modulus)
             p1.Lamda1 = (p1.Lamda1 + temporary_variable_2) % modulus
             temporary_variable_2 = (beta[i] * temporary_variable) % modulus
             p1.Lamda2 = (p1.Lamda2 + temporary_variable_2) % modulus
-
+### Goofed something up there need to recheck lambdas
         p1.Lamda1 = p1.Lamda1 +
 
     def go_shuffle_verify(modulus, generator, public, alpha, beta, alphabar, betabar):
