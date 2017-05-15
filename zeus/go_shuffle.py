@@ -5,15 +5,20 @@ from Crypto import random
 
 class PairShuffle:
 
-    def __init__(modulus, k):
-            ps.modulus = modulus
-            ps.k = k
-            ps.p1.A = list([None]) * k
-            ps.p1.C = list([None]) * k
-            ps.p1.U = list([None]) * k
-            ps.p1.W = list([None]) * k
-            ps.v2.Zrho = list([None]) * k
-            ps.p3.D = list([None]) * k
+    def __init__(self, modulus, k):
+            self.modulus = modulus
+            self.k = k
+            self.Gamma = 0
+            self.p1A = list([None]) * k
+            self.p1C = list([None]) * k
+            self.p1U = list([None]) * k
+            self.p1W = list([None]) * k
+            self.v2 = []
+            self.v2Zrho = list([None]) * k
+            self.p3 = []
+            self.p3D = list([None]) * k
+            self.p1 = []
+            self.p1Lamda1 = 0
 
     def go_shuffle_prove(pi, modulus, generator, public, alpha, beta, neff_beta, random, context):
         if len(alpha) != len(pi) || len(alpha) != len(beta):
@@ -21,7 +26,6 @@ class PairShuffle:
         piinv = [None] * k
         for i in range (k):
             piinv[pi[i]] = i
-        p1 = ps.p1
         u = [None] * k
         w = [None] * k
         a = [None] * k
@@ -29,26 +33,30 @@ class PairShuffle:
         nu = random ##TODO
         gamma = random ##TODO
         ##TODO: u w a random lists
-        p1.Gamma = (pow(generator, gamma, modulus)) % modulus
+        self.Gamma = (pow(generator, gamma, modulus)) % modulus
         wbetasum = tau0
-        p1.Lamda1 = 0
-        p1.Lamda2 = 0
+        self.p1Lamda1 = 0
+        self.p1Lamda2 = 0
         for i in range(k):
-            p1.A[i] = pow(generator, a[i], modulus)
+            self.p1A[i] = pow(generator, a[i], modulus)
             temporary_variable = (gamma * a[pi[i]]) % modulus
-            p1.C[i] = pow(generator, temporary_variable, modulus)
-            p1.U[i] = pow(generator, u[i], modulus)
+            self.p1C[i] = pow(generator, temporary_variable, modulus)
+            self.U[i] = pow(generator, u[i], modulus)
             temporary_variable = (gamma * w[i]) % modulus
-            p1.W[i] = pow(generator, temporary_variable)
+            self.W[i] = pow(generator, temporary_variable)
             temporary_variable = (w[i] * neff_beta[pi[i]]) % modulus
             wbetasum = (wbetasum + temporary_variable) % modulus
             temporary_variable = (w[piinv[i]] - u[i]) % modulus
             temporary_variable_2 = pow(alpha[i], temporary_variable, modulus)
-            p1.Lamda1 = (p1.Lamda1 + temporary_variable_2) % modulus
-            temporary_variable_2 = (beta[i] * temporary_variable) % modulus
-            p1.Lamda2 = (p1.Lamda2 + temporary_variable_2) % modulus
-### Goofed something up there need to recheck lambdas
-        p1.Lamda1 = p1.Lamda1 +
+            self.p1Lamda1 = (self.p1Lamda1 * temporary_variable_2) % modulus
+            temporary_variable_2 = pow(beta[i], temporary_variable, modulus)
+            self.p1Lamda2 = (self.p1Lamda2 * temporary_variable_2) % modulus
+        g_to_the_wbetasum = pow(generator, wbetasum, modulus)
+        h_to_the_wbetasum = pow(public, wbetasum, modulus)
+        self.p1Lamda1 = (g_to_the_wbetasum * self.p1Lamda1) % modulus
+        self.p1Lamda2 = (h_to_the_wbetasum * self.p1Lamda2) % modulus
+        
+
 
     def go_shuffle_verify(modulus, generator, public, alpha, beta, alphabar, betabar):
 
