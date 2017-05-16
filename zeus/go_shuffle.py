@@ -2,7 +2,7 @@ from random import randint, shuffle, choice
 from datetime import datetime
 import Crypto.Util.number as number
 from Crypto import random
-
+import gmpy2
 class PairShuffle:
 
     def __init__(self, modulus, k):
@@ -13,12 +13,10 @@ class PairShuffle:
             self.p1C = list([None]) * k
             self.p1U = list([None]) * k
             self.p1W = list([None]) * k
-            self.v2 = []
             self.v2Zrho = list([None]) * k
-            self.p3 = []
             self.p3D = list([None]) * k
-            self.p1 = []
             self.p1Lamda1 = 0
+            self.v4Zlamda = list([None]) * k
 
     def go_shuffle_prove(pi, modulus, generator, public, alpha, beta, neff_beta, random, context):
         if len(alpha) != len(pi) || len(alpha) != len(beta):
@@ -26,10 +24,12 @@ class PairShuffle:
         piinv = [None] * k
         for i in range (k):
             piinv[pi[i]] = i
+        ##STEP 1
         u = [None] * k
         w = [None] * k
         a = [None] * k
         tau0 = random##TODO
+        self.v2Zrho = random##TODO
         nu = random ##TODO
         gamma = random ##TODO
         ##TODO: u w a random lists
@@ -55,15 +55,43 @@ class PairShuffle:
         h_to_the_wbetasum = pow(public, wbetasum, modulus)
         self.p1Lamda1 = (g_to_the_wbetasum * self.p1Lamda1) % modulus
         self.p1Lamda2 = (h_to_the_wbetasum * self.p1Lamda2) % modulus
-        
+        ##STEP 2
+        B[i] = list([None]) * k
+        for i in range(k):
+            P[i] = pow(generator, self.v2Zrho[i], modulus)
+            temporary_variable = gmpy2.invert(self.p1U[i], modulus)
+            B[i] = (P[i] * temporary_variable) % modulus
+        b = list([None]) * k
+        for i in range(k):
+            b[i] = (self.v2Zrho - u[i]) % modulus
+
+        d = list([None]) * k
+        for i in range(k):
+            d[i] = (gamma * b[pi[i]]) % modulus
+            self.p3D[i] = pow(generator, d[i], modulus)
+
+        self.v4Zlamda = random ##TODO
+
+        r = list([None]) * k
+        for i in range(k):
+            temporary_variable = (self.v4Zlamda * b[i]) % modulus
+            r[i] = (temporary_variable + a[i]) % modulus
+
+
+
+
+
+
+
+##IGNORE THE PUT
+        ###TODO RANDOM v2
+        B = list([None]) * k
+        for i in range(k):
+            P = pow(g, self.v2Zrho, modulus)
+
 
 
     def go_shuffle_verify(modulus, generator, public, alpha, beta, alphabar, betabar):
-
-
-
-    def go_shuffle_verifier(modulus, generator, public, alpha, beta, alphabar, betabar, report_thresh=128):
-
 
     def go_shuffle_shuffle(modulus, generator, public, alpha, beta, report_thresh=128):
         random.seed(datetime.now())
@@ -92,3 +120,4 @@ class PairShuffle:
             YBar[i] = (YBar[i] * Y[pi[i]]) % modulus
     #TODO: prove_encryption
         return XBar, YBar
+    def go_shuffle_verifier(modulus, generator, public, alpha, beta, alphabar, betabar, report_thresh=128):
