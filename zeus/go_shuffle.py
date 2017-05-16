@@ -17,6 +17,7 @@ class PairShuffle:
             self.p3D = list([None]) * k
             self.p1Lamda1 = 0
             self.v4Zlamda = list([None]) * k
+            self.p5Zsigma = list([None]) * k
 
     def go_shuffle_prove(pi, modulus, generator, public, alpha, beta, neff_beta, random, context):
         if len(alpha) != len(pi) || len(alpha) != len(beta):
@@ -77,6 +78,12 @@ class PairShuffle:
             temporary_variable = (self.v4Zlamda * b[i]) % modulus
             r[i] = (temporary_variable + a[i]) % modulus
 
+        s = list([None]) * k
+        for i in range(k):
+            s[i] = (gamma * r[pi[i]]) % modulus
+
+        for i in range(k):
+            self.p5Zsigma
 
 
 
