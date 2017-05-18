@@ -3,12 +3,14 @@ from datetime import datetime
 import Crypto.Util.number as number
 from Crypto import random
 import gmpy2
+
+##TODO IDEA: GENERAL: VERIFY FUNCTION, RANDOMS, THEN SIMPLE shuffle
 class PairShuffle:
 
     def __init__(self, modulus, k):
             self.modulus = modulus
             self.k = k
-            self.Gamma = 0
+            self.p1Gamma = 0
             self.p1A = list([None]) * k
             self.p1C = list([None]) * k
             self.p1U = list([None]) * k
@@ -18,8 +20,9 @@ class PairShuffle:
             self.p1Lamda1 = 0
             self.v4Zlamda = list([None]) * k
             self.p5Zsigma = list([None]) * k
+            self.p5Ztau = 0
 
-    def go_shuffle_prove(pi, modulus, generator, public, alpha, beta, neff_beta, random, context):
+    def go_shuffle_prove(pi, modulus, generator, public, alpha, beta, neff_beta, random):
         if len(alpha) != len(pi) || len(alpha) != len(beta):
             print "Error happened"
         piinv = [None] * k
@@ -34,7 +37,7 @@ class PairShuffle:
         nu = random ##TODO
         gamma = random ##TODO
         ##TODO: u w a random lists
-        self.Gamma = (pow(generator, gamma, modulus)) % modulus
+        self.p1Gamma = (pow(generator, gamma, modulus)) % modulus
         wbetasum = tau0
         self.p1Lamda1 = 0
         self.p1Lamda2 = 0
@@ -56,7 +59,11 @@ class PairShuffle:
         h_to_the_wbetasum = pow(public, wbetasum, modulus)
         self.p1Lamda1 = (g_to_the_wbetasum * self.p1Lamda1) % modulus
         self.p1Lamda2 = (h_to_the_wbetasum * self.p1Lamda2) % modulus
+        ##Make the context p1 dictionary
+        p1 = {'A': self.p1A, 'C': self.p1C, 'U': self.p1U, 'W': self.p1W, 'Lamda1':self.p1Lamda1, 'Lamda2':self.p1Lamda2, 'Gamma':self.p1Gamma}
+
         ##STEP 2
+        ##TODO: Random Zrho(v2)
         B[i] = list([None]) * k
         for i in range(k):
             P[i] = pow(generator, self.v2Zrho[i], modulus)
@@ -71,6 +78,9 @@ class PairShuffle:
             d[i] = (gamma * b[pi[i]]) % modulus
             self.p3D[i] = pow(generator, d[i], modulus)
 
+        ##Make the context dictionary for p3
+        p3 = {'D': self.p3D}
+
         self.v4Zlamda = random ##TODO
 
         r = list([None]) * k
@@ -82,23 +92,31 @@ class PairShuffle:
         for i in range(k):
             s[i] = (gamma * r[pi[i]]) % modulus
 
+        self.p5Ztau = (-tau0) % modulus
         for i in range(k):
-            self.p5Zsigma
+            self.p5Zsigma = (w[i] + b[pi[i]]) % modulus
+            self.p5Ztau = (self.p5Ztau + ((b[pi[i]] * neff_beta[pi[i]]) % modulus)) % modulus
+        ##Make the dictionary for p5
+        p5 = {'Zsigma': self.p5Zsigma, 'Ztau': self.p5Ztau}
+        contextdict = {'p1': p1,'v2': self.v2Zrho, 'p3': p3, 'v4': self.v4Zlamda, 'p5': p5}
+        ##TODO CALL SIMPLE SUFFLE
+
+    def go_shuffle_verify(modulus, generator, public, alpha, beta, alphabar, betabar, context):
+        k = self.k
+        if len(alpha) != k or len(beta) != k or len(alphabar) != k or len(betabar) = k:
+            print 'Error'
+            ##TODO: Handle the Error
+        p1 = context['p1']
+        ##TODO: Check for error there if p1 is null
 
 
 
 
 
-
-##IGNORE THE PUT
         ###TODO RANDOM v2
         B = list([None]) * k
         for i in range(k):
             P = pow(g, self.v2Zrho, modulus)
-
-
-
-    def go_shuffle_verify(modulus, generator, public, alpha, beta, alphabar, betabar):
 
     def go_shuffle_shuffle(modulus, generator, public, alpha, beta, report_thresh=128):
         random.seed(datetime.now())
