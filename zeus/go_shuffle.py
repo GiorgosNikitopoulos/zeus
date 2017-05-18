@@ -1,5 +1,6 @@
-from random import randint, shuffle, choice
+import random
 from datetime import datetime
+from core import get_random_int
 import Crypto.Util.number as number
 from Crypto import random
 import gmpy2
@@ -22,7 +23,7 @@ class PairShuffle:
             self.p5Zsigma = list([None]) * k
             self.p5Ztau = 0
 
-    def go_shuffle_prove(pi, modulus, generator, public, alpha, beta, neff_beta, random):
+    def go_shuffle_prove(pi, modulus, generator, public, alpha, beta, neff_beta, random):##Alpha and beta are respectively X and Y
         if len(alpha) != len(pi) || len(alpha) != len(beta):
             print "Error happened"
         piinv = [None] * k
