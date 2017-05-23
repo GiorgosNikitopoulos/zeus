@@ -1,7 +1,6 @@
 import random
 from datetime import datetime
 from core import get_random_int
-import Crypto.Util.number as number
 from Crypto import random
 import gmpy2
 
@@ -24,7 +23,7 @@ class PairShuffle:
             self.p5Ztau = 0
 
     def go_shuffle_prove(pi, modulus, generator, public, alpha, beta, neff_beta, random):##Alpha and beta are respectively X and Y
-        if len(alpha) != len(pi) || len(alpha) != len(beta):
+        if len(alpha) != len(pi) or len(alpha) != len(beta):
             print "Error happened"
         piinv = [None] * k
         for i in range (k):
@@ -119,7 +118,7 @@ class PairShuffle:
 
     def go_shuffle_verify(modulus, generator, public, alpha, beta, alphabar, betabar, context):
         k = self.k
-        if len(alpha) != k or len(beta) != k or len(alphabar) != k or len(betabar) = k:
+        if len(alpha) != k or len(beta) != k or len(alphabar) != k or len(betabar) == k:
             print 'Error'
             ##TODO: Handle the Error
         ##TODO:The context dictionary can all be avoided by just using the PairShuffle object
@@ -162,9 +161,8 @@ class PairShuffle:
     def go_shuffle_shuffle(modulus, generator, public, alpha, beta, report_thresh=128):
         random.seed(datetime.now())
         k = len(alpha)
-    	if k != len(beta) {
+    	if k != len(beta):
     		print("alpha,beta vectors have inconsistent length")
-    	}
         pi = range(k)
 
         for i in range(k -1, 1, -1):##Permutation array
@@ -186,4 +184,4 @@ class PairShuffle:
             YBar[i] = (YBar[i] * Y[pi[i]]) % modulus
     #TODO: prove_encryption
         return XBar, YBar
-    def go_shuffle_verifier(modulus, generator, public, alpha, beta, alphabar, betabar, report_thresh=128):
+    ##def go_shuffle_verifier(modulus, generator, public, alpha, beta, alphabar, betabar, report_thresh=128):
