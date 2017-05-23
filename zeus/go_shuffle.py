@@ -49,7 +49,7 @@ class PairShuffle:
 
 
 
-        self.p1Gamma = (pow(generator, gamma, modulus)) % modulus
+        self.p1Gamma = pow(generator, gamma, modulus)
         wbetasum = tau0
         self.p1Lamda1 = 0
         self.p1Lamda2 = 0
