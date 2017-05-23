@@ -152,14 +152,13 @@ class PairShuffle:
 
 
     def go_shuffle_shuffle(modulus, order, generator, public, alpha, beta):
-        random.seed(datetime.now())
         k = len(alpha)
     	if k != len(beta):
     		print("alpha,beta vectors have inconsistent length")
         pi = range(k)
 
         for i in range(k -1, 1, -1):##Permutation array
-            j = random.randint(0, i)
+            j = get_random_int(0, i)
             if j != i:
                 temporary_variable = pi[j]
                 pi[j] = pi[i]
