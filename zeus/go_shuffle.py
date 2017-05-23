@@ -156,8 +156,6 @@ class PairShuffle:
             Phi1 = (Phi1 * pow(gmpy2.invert(alpha, modulus), self.v2Zrho[i], modulus)) % modulus
             Phi2 = (Phi2 * pow(betabar[i], self.p5Zsigma[i], modulus)) % modulus ## (32)
             Phi2 = (Phi2 * pow(gmpy2.invert(beta, modulus), self.v2Zrho[i], modulus)) % modulus
-
-            ##TODO: CHECKS
             if pow(self.p1Gamma, self.p5Zsigma, modulus) != (self.p1W[i] * self.p3D[i]) % modulus:
                 print "Verification not successful"
                 return 0
