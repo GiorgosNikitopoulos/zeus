@@ -4,7 +4,7 @@ from core import get_random_int
 from Crypto import random
 import gmpy2
 
-##TODO IDEA: GENERAL: VERIFY FUNCTION, RANDOMS, THEN SIMPLE shuffle
+##TODO : GENERAL: SIMPLE shuffle, some calls
 class PairShuffle:
     def __init__(self, modulus, k):
             self.modulus = modulus
@@ -151,7 +151,7 @@ class PairShuffle:
         return 1
 
 
-    def go_shuffle_shuffle(modulus, generator, public, alpha, beta, report_thresh=128):
+    def go_shuffle_shuffle(modulus, order, generator, public, alpha, beta):
         random.seed(datetime.now())
         k = len(alpha)
     	if k != len(beta):
@@ -166,7 +166,7 @@ class PairShuffle:
                 pi[i] = temporary_variable
         neff_beta = [None] * k## Initializing BETA
         for i in range(0, k):
-            beta[i] = get_random_int(0, modulus)
+            beta[i] = get_random_int(0, order)
         XBar = [None] * k ##Initializing XBar
         YBar = [None] * k ##Initializing YBar
 
