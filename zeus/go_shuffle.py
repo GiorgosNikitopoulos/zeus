@@ -6,7 +6,6 @@ import gmpy2
 
 ##TODO IDEA: GENERAL: VERIFY FUNCTION, RANDOMS, THEN SIMPLE shuffle
 class PairShuffle:
-
     def __init__(self, modulus, k):
             self.modulus = modulus
             self.k = k
@@ -151,12 +150,26 @@ class PairShuffle:
         Phi2 = 0
         P = 0
         Q = 0
-        Phi1 = (Phi1 * pow(alphabar[i], self.p5Zsigma[i], modulus)) % modulus ## (31)
-        Phi1 = (Phi1 * pow(gmpy2.invert(alpha, modulus), self.v2Zrho[i], modulus)) % modulus
-        Phi2 = (Phi2 * pow(betabar[i], self.p5Zsigma[i], modulus)) % modulus ## (32)
-        Phi2 = (Phi2 * pow(gmpy2.invert(beta, modulus), self.v2Zrho[i], modulus)) % modulus
+        for i in range(k):
 
-        ##TODO: CHECKS
+            Phi1 = (Phi1 * pow(alphabar[i], self.p5Zsigma[i], modulus)) % modulus ## (31)
+            Phi1 = (Phi1 * pow(gmpy2.invert(alpha, modulus), self.v2Zrho[i], modulus)) % modulus
+            Phi2 = (Phi2 * pow(betabar[i], self.p5Zsigma[i], modulus)) % modulus ## (32)
+            Phi2 = (Phi2 * pow(gmpy2.invert(beta, modulus), self.v2Zrho[i], modulus)) % modulus
+
+            ##TODO: CHECKS
+            if pow(self.p1Gamma, self.p5Zsigma, modulus) != (self.p1W[i] * self.p3D[i]) % modulus:
+                print "Verification not successful"
+                return 0
+
+        if (self.p1Lamda1 * pow(generator, self.p5Ztau, modulus)) % modulus != Phi1:
+            print "Verification not successful"
+            return 0
+        if (self.p1Lamda2 * pow(public, self.p5Ztau, modulus)) % modulus != Phi2:
+            print "Verification not successful"
+            return 0
+        return 1
+
 
     def go_shuffle_shuffle(modulus, generator, public, alpha, beta, report_thresh=128):
         random.seed(datetime.now())
