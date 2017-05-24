@@ -25,7 +25,7 @@ class PairShuffle:
         self.p5Ztau = 0
 
     # Alpha and beta are respectively X and Y
-    def go_shuffle_prove(pi, modulus, generator, public, alpha, beta, neff_beta, random):
+    def go_shuffle_prove(self, pi, modulus, generator, public, alpha, beta, neff_beta, random):
         if len(alpha) != len(pi) or len(alpha) != len(beta):
             print "Error happened"
         piinv = [None] * k
@@ -107,7 +107,7 @@ class PairShuffle:
 
         # TODO CALL SIMPLE SUFFLE
 
-    def go_shuffle_verify(modulus, generator, public, alpha, beta, alphabar, betabar):
+    def go_shuffle_verify(self, modulus, generator, public, alpha, beta, alphabar, betabar):
         k = self.k
         if len(alpha) != k or len(beta) != k or len(alphabar) != k or len(betabar) == k:
             print 'Error'
@@ -151,7 +151,7 @@ class PairShuffle:
             return 0
         return 1
 
-    def go_shuffle_shuffle(modulus, order, generator, public, alpha, beta):
+    def go_shuffle_shuffle(self, modulus, order, generator, public, alpha, beta):
         k = len(alpha)
         if k != len(beta):
             print("alpha,beta vectors have inconsistent length")
