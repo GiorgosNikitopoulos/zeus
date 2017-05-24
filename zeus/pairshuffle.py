@@ -23,6 +23,7 @@ class PairShuffle:
         self.v4Zlamda = list([None]) * k
         self.p5Zsigma = list([None]) * k
         self.p5Ztau = 0
+        self.pv6 = SimpleShuffle()
 
     # Alpha and beta are respectively X and Y
     def go_shuffle_prove(self, pi, modulus, generator, public, alpha, beta, neff_beta, random):
