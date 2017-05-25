@@ -4,7 +4,6 @@ from datetime import datetime
 from random import randint
 from simpleshuffle import SimpleShuffle
 
-
 class PairShuffle:
     def __init__(self, modulus, k):
         self.modulus = modulus
