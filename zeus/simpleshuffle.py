@@ -49,7 +49,7 @@ class SimpleShuffle:
         thlen = (2 * k) - 1
         theta = list([None]) * thlen
         Theta = list([None]) * (thlen + 1)
-        for i in range(2k - 1):
+        for i in range((2*k) - 1):
             theta = get_random_int(0, order)
         Theta[0] = thenc(modulus, order, G, None, None, theta[0], y_hat[0])
         for i in range(1, k,):
@@ -114,7 +114,7 @@ class SimpleShuffle:
         s = 0
         b_good = True
         b_good = b_good and thver(X_hat[0], Y_hat[0], P, Q, c, alpha[0], modulus)##TODO:THVER CALLED
-        for i in range(1, k)
+        for i in range(1, k):
             b_good = b_good and thver(X_hat[i], Y_hat[i], Theta[i], P, Q, alpha[i-1], alpha[i], modulus)##TODO:THVER CALLED
         for i in range(k, thlen):
             b_good = b_good and thver(Gamma, G, Theta[i], P, Q, alpha[i - 1], alpha[i], modulus)##TODO:THVER CALLED
