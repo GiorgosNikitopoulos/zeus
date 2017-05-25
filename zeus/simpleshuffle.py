@@ -155,7 +155,6 @@ def thenc(modulus, order, G, a, b, c, d):
 
 def thver(A, B, T, P, Q, a, b, modulus):
     """Helper function in order to verify Theta elements"""
-    # TODO: Not implemented
     P = pow(A, a, modulus)
     Q = pow(B, (-b) % modulus, modulus)
     P = (P + Q) % modulus
