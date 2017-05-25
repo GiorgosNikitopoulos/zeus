@@ -5,9 +5,6 @@ from core import get_random_int
 from Crypto import random
 
 
-# TODO : GENERAL: SIMPLE shuffle, some calls
-
-
 class PairShuffle:
     def __init__(self, modulus, k):
         self.modulus = modulus
@@ -23,10 +20,10 @@ class PairShuffle:
         self.v4Zlamda = list([None]) * k
         self.p5Zsigma = list([None]) * k
         self.p5Ztau = 0
-        self.pv6 = SimpleShuffle()
+        self.pv6 = SimpleShuffle(modulus, k)
 
     # Alpha and beta are respectively X and Y
-    def go_shuffle_prove(self, pi, modulus, generator, public, alpha, beta, neff_beta, random):
+    def go_shuffle_prove(self, pi, modulus, generator, public, alpha, beta, neff_beta):
         if len(alpha) != len(pi) or len(alpha) != len(beta):
             print "Error happened"
         piinv = [None] * k
@@ -105,14 +102,13 @@ class PairShuffle:
             self.p5Ztau = (
                 self.p5Ztau + ((b[pi[i]] * neff_beta[pi[i]]) % modulus)) % modulus
         # Make the dictionary for p5
-
-        # TODO CALL SIMPLE SUFFLE
+        return self.pv6.Prove(modulus, order, generator, gamma, r, s)
 
     def go_shuffle_verify(self, modulus, generator, public, alpha, beta, alphabar, betabar):
         k = self.k
         if len(alpha) != k or len(beta) != k or len(alphabar) != k or len(betabar) == k:
             print 'Error'
-            # TODO: Handle the Error
+            return None
 
         # TODO: Check for error there if p1 is null
         # TODO: Check for error there if v2 is null
@@ -123,20 +119,23 @@ class PairShuffle:
         # TODO: Check for error there if p3 is null
         # TODO: Check for error there if v4 is null
 
-        # TODO TODO TODO CALL SIMPLE shuffle
+        error_variable = self.pv6.Verify(
+            modulus, order, generator, self.p1Gamma)
+        if error_variable == 0:
+            return 0
+
         Phi1 = 0
         Phi2 = 0
         P = 0
         Q = 0
         for i in range(k):
 
-            # (31) 
+            # (31)
             Phi1 = (Phi1 * pow(alphabar[i],
                                self.p5Zsigma[i], modulus)) % modulus
             Phi1 = (Phi1 * gmpy2.invert(pow(alpha[i], self.v2Zrho, modulus)) % modulus
             # (32)
-            Phi2 = (Phi2 * pow(betabar[i],
-                               self.p5Zsigma[i], modulus)) % modulus
+            Phi2 = (Phi2 * pow(alphabar[i],self.p5Zsigma[i], modulus)) % modulus
             Phi2 = (Phi2 * gmpy2.invert(pow(beta[i], self.v2Zrho, modulus)) % modulus
             if pow(self.p1Gamma, self.p5Zsigma, modulus) != (self.p1W[i] * self.p3D[i]) % modulus:
                 print "Verification not successful"
@@ -151,29 +150,33 @@ class PairShuffle:
         return 1
 
     def go_shuffle_shuffle(self, modulus, order, generator, public, alpha, beta):
-        k = len(alpha)
+        k=len(alpha)
         if k != len(beta):
             print("alpha,beta vectors have inconsistent length")
-        pi = range(k)
+        ps=PairShuffle(modulus, k)
+        pi=range(k)
 
         for i in range(k - 1, 1, -1):  # Permutation array
-            j = get_random_int(0, i)
+            j=get_random_int(0, i)
             if j != i:
-                temporary_variable = pi[j]
-                pi[j] = pi[i]
-                pi[i] = temporary_variable
-        neff_beta = [None] * k  # Initializing BETA
+                temporary_variable=pi[j]
+                pi[j]=pi[i]
+                pi[i]=temporary_variable
+        neff_beta=[None] * k  # Initializing BETA
         for i in range(0, k):
-            beta[i] = get_random_int(0, order)
-        XBar = [None] * k  # Initializing XBar
-        YBar = [None] * k  # Initializing YBar
+            neff_beta[i]=get_random_int(0, order)
+        XBar=[None] * k  # Initializing XBar
+        YBar=[None] * k  # Initializing YBar
 
         for i in range(0, k):
-            XBar[i] = pow(generator, neff_beta[pi[i]], modulus)
-            XBar[i] = (XBar[i] * X[pi[i]]) % modulus
-            YBar[i] = pow(public, neff_beta[pi[i]], modulus)
-            YBar[i] = (YBar[i] * Y[pi[i]]) % modulus
-        # TODO: prove_encryption
-        return XBar, YBar
-    # def go_shuffle_verifier(modulus, generator, public, alpha, beta,
-    # alphabar, betabar, report_thresh=128):
+            XBar[i]=pow(generator, neff_beta[pi[i]], modulus)
+            XBar[i]=(XBar[i] * X[pi[i]]) % modulus
+            YBar[i]=pow(public, neff_beta[pi[i]], modulus)
+            YBar[i]=(YBar[i] * Y[pi[i]]) % modulus
+
+        prover_var=ps.go_shuffle_prove(
+            pi, modulus, generator, public, alpha, beta, neff_beta)
+        if prover_var == 0:
+            # TODO Raise error
+
+        return XBar, YBar, ps

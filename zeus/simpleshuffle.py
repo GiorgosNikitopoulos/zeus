@@ -4,14 +4,15 @@ from datetime import datetime
 from core import get_random_int
 from Crypto import random
 
+
 class SimpleShuffle:
     def __init__(self, modulus, k):
         self.p0Y = list([None]) * k
         self.p0X = list([None]) * k
-        self.p2Theta = list([None]) * k
-        self.p4Zalpha = list([None]) * k
-        self.v1Zt = 0;
-        self.v3Zc = 0;
+        self.p2Theta = list([None]) * (2 * k)
+        self.p4Zalpha = list([None]) * (2 * k - 1)
+        self.v1Zt = 0
+        self.v3Zc = 0
         self.modulus = modulus
         self.k = k
 
@@ -21,22 +22,22 @@ class SimpleShuffle:
 
         if k <= 1:
             print "Can't Shuffle length 1 vector"
-            ##TODO: Handle error
+            # TODO: Handle error
         if k != len(y):
             print "Mismatched vector lengths"
-            ##TODO: Handle error
+            # TODO: Handle error
 
-        ##Step 0: xi = logG(Xi), Xi = G^xi, same for yi.
-        ##Basically creates Yi and Xi
+        # Step 0: xi = logG(Xi), Xi = G^xi, same for yi.
+        # Basically creates Yi and Xi
         for i in range(k):
             self.p0X = pow(G, x[i], modulus)
             self.p0Y = pow(G, y[i], modulus)
 
-        ##Verifier Step 1: create t in Zq
+        # Verifier Step 1: create t in Zq
         self.v1Zt = get_random_int(0, order)
         t = self.v1Zt
 
-        ##Prover step 2
+        # Prover step 2
         gamma_t = (gamma * t) % modulus
         x_hat = list([None]) * k
         y_hat = list([None]) * k
@@ -49,39 +50,44 @@ class SimpleShuffle:
         thlen = (2 * k) - 1
         theta = list([None]) * thlen
         Theta = list([None]) * (thlen + 1)
-        for i in range((2*k) - 1):
+        for i in range((2 * k) - 1):
             theta = get_random_int(0, order)
         Theta[0] = thenc(modulus, order, G, None, None, theta[0], y_hat[0])
         for i in range(1, k,):
-            Theta[i] = thenc(modulus, order, G, theta[i-1], x_hat[i], theta[i], y_hat[i])
+            Theta[i] = thenc(modulus, order, G, theta[i - 1],
+                             x_hat[i], theta[i], y_hat[i])
         for i in range(k, thlen):
-            Theta[i] = thenc(modulus, order, G, theta[i-1], gamma, theta[i], None)
-        Theta[thlen] = thenc(modulus, order, G, theta[thlen-1], gamma, None, None)
+            Theta[i] = thenc(modulus, order, G, theta[i - 1],
+                             gamma, theta[i], None)
+        Theta[thlen] = thenc(
+            modulus, order, G, theta[thlen - 1], gamma, None, None)
         self.p2Theta = Theta
 
-        ##Verifier Step 3
+        # Verifier Step 3
         self.v3Zc = get_random_int(0, k)
         c = self.v3Zc
 
-        ##Prover step 4
+        # Prover step 4
         alpha = list([None]) * thlen
         runprod = c
-        ##(8)
+        # (8)
         for i in range(k):
-            runprod = (runprod * x_hat[i]) % order ##The one multiplication Neff was reffering to
-            runprod = (runprod * gmpy2.invert(y_hat[i], modulus)) % order ## The one division Neff was referring to
+            # The one multiplication Neff was reffering to
+            runprod = (runprod * x_hat[i]) % order
+            # The one division Neff was referring to
+            runprod = (runprod * gmpy2.invert(y_hat[i], modulus)) % order
             alpha[i] = (theta[i] + runprod) % order
         gammainverse = gmpy2.invert(gamma, order)
         rungamma = c
-        ##That is the second part of (8)
+        # That is the second part of (8)
         for i in range(1, k):
             rungamma = (rungamma * gammainverse) % order
-            alpha[thlen-i] = (theta[thlen - i] + rungamma) % order
+            alpha[thlen - i] = (theta[thlen - i] + rungamma) % order
 
-        ##Verifier step 5
+        # Verifier step 5
         self.p4Zalpha = alpha
 
-        return None
+        return 1
 
     def Verify(self, modulus, order, G, Gamma):
         """Verifier for Neff's SimpleShuffle"""
@@ -90,17 +96,17 @@ class SimpleShuffle:
         Theta = self.p2Theta
         alpha = self.p4Zalpha
 
-        ##Validate vector lens
+        # Validate vector lens
         k = len(Y)
         thlen = (2 * k) - 1
         if k <= 1 or len(Y) != k or len(Theta) != thlen + 1 or len(alpha) != thlen:
             print 'Something went wrong'
-            return None
-        ##TODO: Check for null stuff
+            return 0
+        # TODO: Check for null stuff
         t = self.v1Zt
         c = self.v3Zc
 
-        ##Verifier step 5
+        # Verifier step 5
         negt = (-t) % modulus
         U = pow(G, negt, modulus)
         W = pow(Gamma, negt, modulus)
@@ -113,12 +119,16 @@ class SimpleShuffle:
         Q = 0
         s = 0
         b_good = True
-        b_good = b_good and thver(X_hat[0], Y_hat[0], P, Q, c, alpha[0], modulus)##TODO:THVER CALLED
+        b_good = b_good and thver(
+            X_hat[0], Y_hat[0], P, Q, c, alpha[0], modulus)
         for i in range(1, k):
-            b_good = b_good and thver(X_hat[i], Y_hat[i], Theta[i], P, Q, alpha[i-1], alpha[i], modulus)##TODO:THVER CALLED
+            b_good = b_good and thver(
+                X_hat[i], Y_hat[i], Theta[i], P, Q, alpha[i - 1], alpha[i], modulus)
         for i in range(k, thlen):
-            b_good = b_good and thver(Gamma, G, Theta[i], P, Q, alpha[i - 1], alpha[i], modulus)##TODO:THVER CALLED
-        b_good = b_good and thver(Gamma, G, Theta[thlen], P, Q, alpha[thlen - 1], c, modulus)
+            b_good = b_good and thver(
+                Gamma, G, Theta[i], P, Q, alpha[i - 1], alpha[i], modulus)
+        b_good = b_good and thver(
+            Gamma, G, Theta[thlen], P, Q, alpha[thlen - 1], c, modulus)
         if not b_good:
             print 'Incorrect poof'
             return 0
@@ -142,9 +152,10 @@ def thenc(modulus, order, G, a, b, c, d):
         cd = 0
     return pow(G, (ab - cd) % modulus, modulus)
 
+
 def thver(A, B, T, P, Q, a, b, modulus):
     """Helper function in order to verify Theta elements"""
-    ##TODO: Not implemented
+    # TODO: Not implemented
     P = pow(A, a, modulus)
     Q = pow(B, (-b) % modulus, modulus)
     P = (P + Q) % modulus
