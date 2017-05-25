@@ -3,6 +3,7 @@ import gmpy2
 from datetime import datetime
 from core import get_random_int
 from Crypto import random
+from simpleshuffle import SimpleShuffle
 
 
 class PairShuffle:
