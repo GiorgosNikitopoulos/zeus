@@ -130,16 +130,14 @@ class PairShuffle:
         Q = 0
         for i in range(k):
 
-            # (31) ##TODO: FIX PHIS
+            # (31) 
             Phi1 = (Phi1 * pow(alphabar[i],
                                self.p5Zsigma[i], modulus)) % modulus
-            Phi1 = (Phi1 * pow(gmpy2.invert(alpha, modulus),
-                               self.v2Zrho[i], modulus)) % modulus
-            # (32) ##TODO: FIX PHIS
+            Phi1 = (Phi1 * gmpy2.invert(pow(alpha[i], self.v2Zrho, modulus)) % modulus
+            # (32)
             Phi2 = (Phi2 * pow(betabar[i],
                                self.p5Zsigma[i], modulus)) % modulus
-            Phi2 = (Phi2 * pow(gmpy2.invert(beta, modulus),
-                               self.v2Zrho[i], modulus)) % modulus
+            Phi2 = (Phi2 * gmpy2.invert(pow(beta[i], self.v2Zrho, modulus)) % modulus
             if pow(self.p1Gamma, self.p5Zsigma, modulus) != (self.p1W[i] * self.p3D[i]) % modulus:
                 print "Verification not successful"
                 return 0

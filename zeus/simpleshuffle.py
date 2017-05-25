@@ -102,7 +102,27 @@ class SimpleShuffle:
 
         ##Verifier step 5
         negt = (-t) % modulus
-        U =
+        U = pow(G, negt, modulus)
+        W = pow(Gamma, negt, modulus)
+        X_hat = list([None]) * k
+        Y_hat = list([None]) * k
+        for i in range(k):
+            X_hat[i] = (X[i] * U) % modulus
+            Y_hat[i] = (Y[i] * W) % modulus
+        P = 0
+        Q = 0
+        s = 0
+        b_good = True
+        b_good = b_good and thver(X_hat[0], Y_hat[0], P, Q, c, alpha[0], modulus)##TODO:THVER CALLED
+        for i in range(1, k)
+            b_good = b_good and thver(X_hat[i], Y_hat[i], Theta[i], P, Q, alpha[i-1], alpha[i], modulus)##TODO:THVER CALLED
+        for i in range(k, thlen):
+            b_good = b_good and thver(Gamma, G, Theta[i], P, Q, alpha[i - 1], alpha[i], modulus)##TODO:THVER CALLED
+        b_good = b_good and thver(Gamma, G, Theta[thlen], P, Q, alpha[thlen - 1], c, modulus)
+        if not b_good:
+            print 'Incorrect poof'
+            return 0
+        return 1
 
 
 def thenc(modulus, order, G, a, b, c, d):
@@ -122,6 +142,13 @@ def thenc(modulus, order, G, a, b, c, d):
         cd = 0
     return pow(G, (ab - cd) % modulus, modulus)
 
-def thver(A, B, T, P, Q, a, b, s):
+def thver(A, B, T, P, Q, a, b, modulus):
     """Helper function in order to verify Theta elements"""
     ##TODO: Not implemented
+    P = pow(A, a, modulus)
+    Q = pow(B, (-b) % modulus, modulus)
+    P = (P + Q) % modulus
+    if P == T:
+        return True
+    else:
+        return False
