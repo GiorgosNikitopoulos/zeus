@@ -1,8 +1,7 @@
 import random
 import gmpy2
 from datetime import datetime
-from core import get_random_int
-from Crypto import random
+from random import randint
 from simpleshuffle import SimpleShuffle
 
 
@@ -38,15 +37,15 @@ class PairShuffle:
 
         # u w a random lists
         for i in range(k):
-            u[i] = get_random_int(0, order)
+            u[i] = randint(0, order - 1)
         for i in range(k):
-            w[i] = get_random_int(0, order)
-        tau0 = get_random_int(0, order)
+            w[i] = randint(0, order - 1)
+        tau0 = randint(0, order - 1)
         for i in range(k):
-            self.v2Zrho = get_random_int(0, order)
+            self.v2Zrho = randint(0, order - 1)
 
-        nu = get_random_int(1, order)
-        gamma = get_random_int(1, order)
+        nu = randint(1, order - 1)
+        gamma = randint(1, order - 1)
 
         self.p1Gamma = pow(generator, gamma, modulus)
         wbetasum = tau0
@@ -87,7 +86,7 @@ class PairShuffle:
             self.p3D[i] = pow(generator, d[i], modulus)
 
         # Generate random Lamda for fourth step
-        self.v4Zlamda = get_random_int(0, order)
+        self.v4Zlamda = randint(0, order - 1)
 
         r = list([None]) * k
         for i in range(k):
@@ -161,14 +160,14 @@ class PairShuffle:
         pi = range(k)
 
         for i in range(k - 1, 1, -1):  # Permutation array
-            j = get_random_int(0, i)
+            j = randint(0, i)
             if j != i:
                 temporary_variable = pi[j]
                 pi[j] = pi[i]
                 pi[i] = temporary_variable
         neff_beta = [None] * k  # Initializing BETA
         for i in range(0, k):
-            neff_beta[i] = get_random_int(0, order)
+            neff_beta[i] = randint(0, order - 1)
         XBar = [None] * k  # Initializing XBar
         YBar = [None] * k  # Initializing YBar
 

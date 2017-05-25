@@ -1,9 +1,7 @@
 import random
 import gmpy2
 from datetime import datetime
-from core import get_random_int
-from Crypto import random
-
+from random import randint
 
 class SimpleShuffle:
     def __init__(self, modulus, k):
@@ -34,7 +32,7 @@ class SimpleShuffle:
             self.p0Y = pow(G, y[i], modulus)
 
         # Verifier Step 1: create t in Zq
-        self.v1Zt = get_random_int(0, order)
+        self.v1Zt = randint(0, order - 1)
         t = self.v1Zt
 
         # Prover step 2
@@ -51,7 +49,7 @@ class SimpleShuffle:
         theta = list([None]) * thlen
         Theta = list([None]) * (thlen + 1)
         for i in range((2 * k) - 1):
-            theta = get_random_int(0, order)
+            theta = randint(0, order - 1)
         Theta[0] = thenc(modulus, order, G, None, None, theta[0], y_hat[0])
         for i in range(1, k,):
             Theta[i] = thenc(modulus, order, G, theta[i - 1],
@@ -64,7 +62,7 @@ class SimpleShuffle:
         self.p2Theta = Theta
 
         # Verifier Step 3
-        self.v3Zc = get_random_int(0, k)
+        self.v3Zc = randint(0, k - 1)
         c = self.v3Zc
 
         # Prover step 4
