@@ -172,9 +172,9 @@ class PairShuffle:
 
         for i in range(0, k):
             XBar[i] = pow(generator, neff_beta[pi[i]], modulus)
-            XBar[i] = (XBar[i] * X[pi[i]]) % modulus
+            XBar[i] = (XBar[i] * alpha[pi[i]]) % modulus
             YBar[i] = pow(public, neff_beta[pi[i]], modulus)
-            YBar[i] = (YBar[i] * Y[pi[i]]) % modulus
+            YBar[i] = (YBar[i] * beta[pi[i]]) % modulus
 
         prover_var = self.go_shuffle_prove(
             pi, modulus, generator, public, alpha, beta, neff_beta)
