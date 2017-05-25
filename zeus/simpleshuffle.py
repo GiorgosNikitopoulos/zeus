@@ -68,15 +68,15 @@ class SimpleShuffle:
         runprod = c
         ##(8)
         for i in range(k):
-            runprod = (runprod * x_hat[i]) % modulus
-            runprod = (runprod * gmpy2.invert(y_hat[i], modulus)) % modulus
-            alpha[i] = (theta[i] + runprod) % modulus
-        gammainverse = gmpy2.invert(gamma, modulus)
+            runprod = (runprod * x_hat[i]) % order ##The one multiplication Neff was reffering to
+            runprod = (runprod * gmpy2.invert(y_hat[i], modulus)) % order ## The one division Neff was referring to
+            alpha[i] = (theta[i] + runprod) % order
+        gammainverse = gmpy2.invert(gamma, order)
         rungamma = c
         ##That is the second part of (8)
         for i in range(1, k):
-            rungamma = (rungamma * gammainverse) % modulus
-            alpha[thlen-i] = (theta[thlen - i] + rungamma) % modulus
+            rungamma = (rungamma * gammainverse) % order
+            alpha[thlen-i] = (theta[thlen - i] + rungamma) % order
 
         ##Verifier step 5
         self.p4Zalpha = alpha
@@ -84,7 +84,26 @@ class SimpleShuffle:
         return None
 
     def Verify(self, modulus, order, G, Gamma):
-            
+        """Verifier for Neff's SimpleShuffle"""
+        X = self.p0X
+        Y = self.p0Y
+        Theta = self.p2Theta
+        alpha = self.p4Zalpha
+
+        ##Validate vector lens
+        k = len(Y)
+        thlen = (2 * k) - 1
+        if k <= 1 or len(Y) != k or len(Theta) != thlen + 1 or len(alpha) != thlen:
+            print 'Something went wrong'
+            return None
+        ##TODO: Check for null stuff
+        t = self.v1Zt
+        c = self.v3Zc
+
+        ##Verifier step 5
+        negt = (-t) % modulus
+        U =
+
 
 def thenc(modulus, order, G, a, b, c, d):
     """Helper function in order to compute G^(ab-cd)"""
