@@ -49,7 +49,7 @@ class SimpleShuffle:
         theta = list([None]) * thlen
         Theta = list([None]) * (thlen + 1)
         for i in range((2 * k) - 1):
-            theta = randint(0, order - 1)
+            theta[i] = randint(0, order - 1)
         Theta[0] = thenc(modulus, order, G, None, None, theta[0], y_hat[0])
         for i in range(1, k,):
             Theta[i] = thenc(modulus, order, G, theta[i - 1],
@@ -137,17 +137,17 @@ def thenc(modulus, order, G, a, b, c, d):
     """Helper function in order to compute G^(ab-cd)"""
     ab = 0
     cd = 0
-    if a != None or a != 0:
-        ab = (a * b) % modulus
-    else:
+    if a == None or a == 0:
         ab = 0
-    if c != None or c != 0:
-        if d != None or d != 0:
-            cd = (c * d) % modulus
-        else:
-            cd = c
     else:
+        ab = (a * b) % modulus
+    if c == None or c == 0:
         cd = 0
+    else:
+        if d == None or d == 0:
+            cd = c
+        else:
+            cd = (c * d) % modulus
     return pow(G, (ab - cd) % modulus, modulus)
 
 

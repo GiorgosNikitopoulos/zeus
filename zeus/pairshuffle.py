@@ -22,10 +22,11 @@ class PairShuffle:
         self.pv6 = SimpleShuffle(modulus, k)
 
     # Alpha and beta are respectively X and Y
-    def go_shuffle_prove(self, pi, modulus, generator, public, alpha, beta, neff_beta):
+    def go_shuffle_prove(self, pi, modulus, order, generator, public, alpha, beta, neff_beta):
         """PairShuffle Prove function. Returns 1 if successful"""
         if len(alpha) != len(pi) or len(alpha) != len(beta):
             print "Error happened"
+        k = self.k
         piinv = [None] * k
         for i in range(k):
             piinv[pi[i]] = i
@@ -39,9 +40,11 @@ class PairShuffle:
             u[i] = randint(0, order - 1)
         for i in range(k):
             w[i] = randint(0, order - 1)
+        for i in range(k):
+            a[i] = randint(0, order - 1)
         tau0 = randint(0, order - 1)
         for i in range(k):
-            self.v2Zrho = randint(0, order - 1)
+            self.v2Zrho[i] = randint(0, order - 1)
 
         nu = randint(1, order - 1)
         gamma = randint(1, order - 1)
@@ -50,34 +53,39 @@ class PairShuffle:
         wbetasum = tau0
         self.p1Lamda1 = 0
         self.p1Lamda2 = 0
+        print 'Before the iteration'
         for i in range(k):
             self.p1A[i] = pow(generator, a[i], modulus)
             temporary_variable = (gamma * a[pi[i]]) % modulus
             self.p1C[i] = pow(generator, temporary_variable, modulus)
-            self.U[i] = pow(generator, u[i], modulus)
+            self.p1U[i] = pow(generator, u[i], modulus)
             temporary_variable = (gamma * w[i]) % modulus
-            self.W[i] = pow(generator, temporary_variable)
+            self.p1W[i] = pow(generator, temporary_variable, modulus)
             temporary_variable = (w[i] * neff_beta[pi[i]]) % modulus
+            print 'Im in the middle of the iteration'
             wbetasum = (wbetasum + temporary_variable) % modulus
             temporary_variable = (w[piinv[i]] - u[i]) % modulus
             temporary_variable_2 = pow(alpha[i], temporary_variable, modulus)
             self.p1Lamda1 = (self.p1Lamda1 * temporary_variable_2) % modulus
             temporary_variable_2 = pow(beta[i], temporary_variable, modulus)
             self.p1Lamda2 = (self.p1Lamda2 * temporary_variable_2) % modulus
+            print 'One more iteration'
         g_to_the_wbetasum = pow(generator, wbetasum, modulus)
         h_to_the_wbetasum = pow(public, wbetasum, modulus)
         self.p1Lamda1 = (g_to_the_wbetasum * self.p1Lamda1) % modulus
         self.p1Lamda2 = (h_to_the_wbetasum * self.p1Lamda2) % modulus
 
         # STEP 2
-        B[i] = list([None]) * k
+        B = list([None]) * k
+        P = list([None]) * k
+        ##TESTED UNTIL HERE
         for i in range(k):
             P[i] = pow(generator, self.v2Zrho[i], modulus)
             temporary_variable = gmpy2.invert(self.p1U[i], modulus)
             B[i] = (P[i] * temporary_variable) % modulus
         b = list([None]) * k
         for i in range(k):
-            b[i] = (self.v2Zrho - u[i]) % modulus
+            b[i] = (self.v2Zrho[i] - u[i]) % modulus
 
         d = list([None]) * k
         for i in range(k):
@@ -177,7 +185,7 @@ class PairShuffle:
             YBar[i] = (YBar[i] * beta[pi[i]]) % modulus
 
         prover_var = self.go_shuffle_prove(
-            pi, modulus, generator, public, alpha, beta, neff_beta)
+            pi, modulus, order, generator, public, alpha, beta, neff_beta)
         if prover_var == 0:
             # TODO Raise error
             pass
