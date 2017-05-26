@@ -189,4 +189,4 @@ class PairShuffle:
         if prover_var == 0:
             # TODO Raise error
             pass
-        return XBar, YBar
+        return XBar, YBar, prover_var

@@ -26,11 +26,10 @@ def main():
     print key.y
     print alpha
     print beta
-    Resoolt1, Resoolt2 = pairshuffle_obj.go_shuffle_shuffle(key.p, q, key.g, key.y, alpha, beta)
+    Resoolt1, Resoolt2, b_var = pairshuffle_obj.go_shuffle_shuffle(key.p, q, key.g, key.y, alpha, beta)
     print Resoolt1
     print Resoolt2
-
-    # My code here
+    print b_var
 
 if __name__ == "__main__":
     main()
