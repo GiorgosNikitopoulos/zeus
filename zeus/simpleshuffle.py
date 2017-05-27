@@ -28,8 +28,8 @@ class SimpleShuffle:
         # Step 0: xi = logG(Xi), Xi = G^xi, same for yi.
         # Basically creates Yi and Xi
         for i in range(k):
-            self.p0X = pow(G, x[i], modulus)
-            self.p0Y = pow(G, y[i], modulus)
+            self.p0X[i] = pow(G, x[i], modulus)
+            self.p0Y[i] = pow(G, y[i], modulus)
 
         # Verifier Step 1: create t in Zq
         self.v1Zt = randint(0, order - 1)
@@ -93,7 +93,7 @@ class SimpleShuffle:
         Y = self.p0Y
         Theta = self.p2Theta
         alpha = self.p4Zalpha
-
+        print len(Y)
         # Validate vector lens
         k = len(Y)
         thlen = (2 * k) - 1
@@ -118,7 +118,7 @@ class SimpleShuffle:
         s = 0
         b_good = True
         b_good = b_good and thver(
-            X_hat[0], Y_hat[0], P, Q, c, alpha[0], modulus)
+            X_hat[0], Y_hat[0], Theta[0], P, Q, c, alpha[0], modulus)
         for i in range(1, k):
             b_good = b_good and thver(
                 X_hat[i], Y_hat[i], Theta[i], P, Q, alpha[i - 1], alpha[i], modulus)
@@ -127,6 +127,7 @@ class SimpleShuffle:
                 Gamma, G, Theta[i], P, Q, alpha[i - 1], alpha[i], modulus)
         b_good = b_good and thver(
             Gamma, G, Theta[thlen], P, Q, alpha[thlen - 1], c, modulus)
+        print b_good
         if not b_good:
             print 'Incorrect poof'
             return 0

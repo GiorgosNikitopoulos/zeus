@@ -25,5 +25,9 @@ def main():
     print Result2
     print b_var
 
+    print "Done with shuffling now testing verification"
+    print pairshuffle_obj.pv6.p0Y
+    b_var = pairshuffle_obj.go_shuffle_verify(key.p, q,key.g, key.y, alpha, beta, Result1, Result2)
+    print b_var
 if __name__ == "__main__":
     main()

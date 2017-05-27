@@ -112,19 +112,20 @@ class PairShuffle:
         # Make the dictionary for p5
         return self.pv6.Prove(modulus, order, generator, gamma, r, s)
 
-    def go_shuffle_verify(self, modulus, generator, public, alpha, beta, alphabar, betabar):
+    def go_shuffle_verify(self, modulus, order, generator, public, alpha, beta, alphabar, betabar):
         """PairShuffle Verify function. Returns 1 if Verify is successful"""
         k = self.k
-        if len(alpha) != k or len(beta) != k or len(alphabar) != k or len(betabar) == k:
+        if len(alpha) != k or len(beta) != k or len(alphabar) != k or len(betabar) != k:
             print 'Error'
             return None
-
+        print "Reached here"
         # TODO: Check for error there if p1 is null
         # TODO: Check for error there if v2 is null
 
         B = list([None]) * k
         for i in range(k):
-            P = pow(g, self.v2Zrho, modulus)
+            P = pow(generator, self.v2Zrho[i], modulus) ## g = generator
+            B = (P * gmpy2.invert(self.p1U[i], modulus)) % modulus
         # TODO: Check for error there if p3 is null
         # TODO: Check for error there if v4 is null
 
