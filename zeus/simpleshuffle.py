@@ -36,13 +36,13 @@ class SimpleShuffle:
         t = self.v1Zt
 
         # Prover step 2
-        gamma_t = (gamma * t) % modulus
+        gamma_t = (gamma * t) % order ## % modulus
         x_hat = list([None]) * k
         y_hat = list([None]) * k
 
         for i in range(k):
-            x_hat[i] = (x[i] - t) % modulus
-            y_hat[i] = (y[i] - gamma_t) % modulus
+            x_hat[i] = (x[i] - t) % order #modulus
+            y_hat[i] = (y[i] - gamma_t) % order #modulus
 
         #(7) theta and Theta vectors
         thlen = (2 * k) - 1
@@ -51,7 +51,7 @@ class SimpleShuffle:
         for i in range((2 * k) - 1):
             theta[i] = randint(0, order - 1)
         Theta[0] = thenc(modulus, order, G, None, None, theta[0], y_hat[0])
-        for i in range(1, k,):
+        for i in range(1, k):
             Theta[i] = thenc(modulus, order, G, theta[i - 1],
                              x_hat[i], theta[i], y_hat[i])
         for i in range(k, thlen):
@@ -62,7 +62,7 @@ class SimpleShuffle:
         self.p2Theta = Theta
 
         # Verifier Step 3
-        self.v3Zc = randint(0, k - 1)
+        self.v3Zc = randint(0, order - 1)
         c = self.v3Zc
 
         # Prover step 4
@@ -71,16 +71,16 @@ class SimpleShuffle:
         # (8)
         for i in range(k):
             # The one multiplication Neff was reffering to
-            runprod = (runprod * x_hat[i]) % order
+            runprod = (runprod * x_hat[i]) % order ## % To ixa order
             # The one division Neff was referring to
-            runprod = (runprod * gmpy2.invert(y_hat[i], modulus)) % order
-            alpha[i] = (theta[i] + runprod) % order
-        gammainverse = gmpy2.invert(gamma, order)
+            runprod = (runprod * gmpy2.invert(y_hat[i], order)) % order ## % modulus order to xa
+            alpha[i] = (theta[i] + runprod) % order ## % order
+        gammainverse = gmpy2.invert(gamma, order) ## % order
         rungamma = c
         # That is the second part of (8)
         for i in range(1, k):
-            rungamma = (rungamma * gammainverse) % order
-            alpha[thlen - i] = (theta[thlen - i] + rungamma) % order
+            rungamma = (rungamma * gammainverse) % order ## % order
+            alpha[thlen - i] = (theta[thlen - i] + rungamma) % order ## % order
 
         # Verifier step 5
         self.p4Zalpha = alpha
@@ -93,9 +93,9 @@ class SimpleShuffle:
         Y = self.p0Y
         Theta = self.p2Theta
         alpha = self.p4Zalpha
-        print len(Y)
         # Validate vector lens
         k = len(Y)
+        print 'k is ' + str(k)
         thlen = (2 * k) - 1
         if k <= 1 or len(Y) != k or len(Theta) != thlen + 1 or len(alpha) != thlen:
             print 'Something went wrong'
@@ -105,7 +105,7 @@ class SimpleShuffle:
         c = self.v3Zc
 
         # Verifier step 5
-        negt = (-t) % modulus
+        negt = (-t) % order  ##Fix modulus
         U = pow(G, negt, modulus)
         W = pow(Gamma, negt, modulus)
         X_hat = list([None]) * k
@@ -120,11 +120,12 @@ class SimpleShuffle:
         b_good = b_good and thver(
             X_hat[0], Y_hat[0], Theta[0], P, Q, c, alpha[0], modulus)
         for i in range(1, k):
-            b_good = b_good and thver(
-                X_hat[i], Y_hat[i], Theta[i], P, Q, alpha[i - 1], alpha[i], modulus)
+            b_good = b_good and thver(X_hat[i], Y_hat[i], Theta[i], P, Q, alpha[i - 1], alpha[i], modulus)
+            print 'Passed here 1'
         for i in range(k, thlen):
             b_good = b_good and thver(
                 Gamma, G, Theta[i], P, Q, alpha[i - 1], alpha[i], modulus)
+            print 'Passed here 2'
         b_good = b_good and thver(
             Gamma, G, Theta[thlen], P, Q, alpha[thlen - 1], c, modulus)
         print b_good
@@ -141,23 +142,30 @@ def thenc(modulus, order, G, a, b, c, d):
     if a == None or a == 0:
         ab = 0
     else:
-        ab = (a * b) % modulus
+        ab = (a * b) % order #modulus
     if c == None or c == 0:
         cd = 0
     else:
         if d == None or d == 0:
             cd = c
         else:
-            cd = (c * d) % modulus
-    return pow(G, (ab - cd) % modulus, modulus)
-
+            cd = (c * d) % order ##modulus
+    print 'ab = ' + str(ab)
+    print 'cd = ' + str(cd)
+    return pow(G, (ab - cd) % order, modulus) #modulus
 
 def thver(A, B, T, P, Q, a, b, modulus):
     """Helper function in order to verify Theta elements"""
     P = pow(A, a, modulus)
-    Q = pow(B, (-b) % modulus, modulus)
-    P = (P + Q) % modulus
+    print 'This is P: ' + str(P)
+    Q = pow(B, ((-b) % modulus), modulus)
+    print 'This is Q: ' + str(Q)
+    P = (P * Q) % modulus
+    print 'This is new P: ' + str(P)
+    print 'This is Taf: ' + str(T)
     if P == T:
+        print 'True'
         return True
     else:
+        print 'False'
         return False

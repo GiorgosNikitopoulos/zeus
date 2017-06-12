@@ -3,6 +3,7 @@ from Crypto.PublicKey import ElGamal
 from Crypto.Random import random
 from Crypto import Random
 import binascii
+import gmpy2
 
 def main():
     Result3 = 0
@@ -10,6 +11,7 @@ def main():
     Result2 = [None] * 5##Init Result2
     key = ElGamal.generate(256, Random.new().read) ##Generate Elgamal key
     q = (key.p - 1) / 2 ##Get order
+    print 'Is q prime?' + str(gmpy2.is_prime(q))
     alpha = [None] * 5
     beta = [None] * 5 ##Init ElGamal Pair
     messages = [None] * 5 ##Init message pair

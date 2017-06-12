@@ -50,21 +50,21 @@ class PairShuffle:
         gamma = randint(1, order - 1)
 
         self.p1Gamma = pow(generator, gamma, modulus)
-        wbetasum = tau0
+        wbetasum = tau0 % order #keno
         self.p1Lamda1 = 0
         self.p1Lamda2 = 0
         print 'Before the iteration'
         for i in range(k):
             self.p1A[i] = pow(generator, a[i], modulus)
-            temporary_variable = (gamma * a[pi[i]]) % modulus
+            temporary_variable = (gamma * a[pi[i]]) % order #modulus
             self.p1C[i] = pow(generator, temporary_variable, modulus)
             self.p1U[i] = pow(generator, u[i], modulus)
-            temporary_variable = (gamma * w[i]) % modulus
+            temporary_variable = (gamma * w[i]) % order #modulus
             self.p1W[i] = pow(generator, temporary_variable, modulus)
-            temporary_variable = (w[i] * neff_beta[pi[i]]) % modulus
+            temporary_variable = (w[i] * neff_beta[pi[i]]) % order #modulus
             print 'Im in the middle of the iteration'
-            wbetasum = (wbetasum + temporary_variable) % modulus
-            temporary_variable = (w[piinv[i]] - u[i]) % modulus
+            wbetasum = (wbetasum + temporary_variable) % order #modulus
+            temporary_variable = (w[piinv[i]] - u[i]) % order #modulus
             temporary_variable_2 = pow(alpha[i], temporary_variable, modulus)
             self.p1Lamda1 = (self.p1Lamda1 * temporary_variable_2) % modulus
             temporary_variable_2 = pow(beta[i], temporary_variable, modulus)
@@ -85,11 +85,11 @@ class PairShuffle:
             B[i] = (P[i] * temporary_variable) % modulus
         b = list([None]) * k
         for i in range(k):
-            b[i] = (self.v2Zrho[i] - u[i]) % modulus
+            b[i] = (self.v2Zrho[i] - u[i]) % order #modulus
 
         d = list([None]) * k
         for i in range(k):
-            d[i] = (gamma * b[pi[i]]) % modulus
+            d[i] = (gamma * b[pi[i]]) % order #modulus
             self.p3D[i] = pow(generator, d[i], modulus)
 
         # Generate random Lamda for fourth step
@@ -97,18 +97,18 @@ class PairShuffle:
 
         r = list([None]) * k
         for i in range(k):
-            temporary_variable = (self.v4Zlamda * b[i]) % modulus
-            r[i] = (temporary_variable + a[i]) % modulus
+            temporary_variable = (self.v4Zlamda * b[i]) % order #modulus
+            r[i] = (temporary_variable + a[i]) % order #modulus
 
         s = list([None]) * k
         for i in range(k):
-            s[i] = (gamma * r[pi[i]]) % modulus
+            s[i] = (gamma * r[pi[i]]) % order #modulus
 
-        self.p5Ztau = (-tau0) % modulus
+        self.p5Ztau = (-tau0) % order #modulus
         for i in range(k):
-            self.p5Zsigma = (w[i] + b[pi[i]]) % modulus
+            self.p5Zsigma = (w[i] + b[pi[i]]) % order #modulus
             self.p5Ztau = (
-                self.p5Ztau + ((b[pi[i]] * neff_beta[pi[i]]) % modulus)) % modulus
+                self.p5Ztau + ((b[i] * neff_beta[i]) % order)) % order #modulus
         # Make the dictionary for p5
         return self.pv6.Prove(modulus, order, generator, gamma, r, s)
 
@@ -128,7 +128,7 @@ class PairShuffle:
             B = (P * gmpy2.invert(self.p1U[i], modulus)) % modulus
         # TODO: Check for error there if p3 is null
         # TODO: Check for error there if v4 is null
-
+        print 'This is p1' +str(self.p1Gamma)
         error_variable = self.pv6.Verify(
             modulus, order, generator, self.p1Gamma)
         if error_variable == 0:
