@@ -3,12 +3,12 @@ import gmpy2
 from datetime import datetime
 from random import randint
 
-class SimpleShuffle:
+class SimpleShuffle(object):
     def __init__(self, modulus, k):
-        self.p0Y = list([None]) * k
-        self.p0X = list([None]) * k
-        self.p2Theta = list([None]) * (2 * k)
-        self.p4Zalpha = list([None]) * (2 * k - 1)
+        self.p0Y = [None] * k
+        self.p0X = [None] * k
+        self.p2Theta = [None] * (2 * k)
+        self.p4Zalpha = [None] * (2 * k - 1)
         self.v1Zt = 0
         self.v3Zc = 0
         self.modulus = modulus
@@ -19,11 +19,9 @@ class SimpleShuffle:
         k = self.k
 
         if k <= 1:
-            print "Can't Shuffle length 1 vector"
-            # TODO: Handle error
+            raise Exception("Can't Shuffle length 1 vector")
         if k != len(y):
-            print "Mismatched vector lengths"
-            # TODO: Handle error
+            raise Exception("Mismatched vector lengths")
 
         # Step 0: xi = logG(Xi), Xi = G^xi, same for yi.
         # Basically creates Yi and Xi
@@ -36,18 +34,18 @@ class SimpleShuffle:
         t = self.v1Zt
 
         # Prover step 2
-        gamma_t = (gamma * t) % order ## % modulus
-        x_hat = list([None]) * k
-        y_hat = list([None]) * k
+        gamma_t = (gamma * t) % order
+        x_hat = [None] * k
+        y_hat = [None] * k
 
         for i in range(k):
-            x_hat[i] = (x[i] - t) % order #modulus
-            y_hat[i] = (y[i] - gamma_t) % order #modulus
+            x_hat[i] = (x[i] - t) % order
+            y_hat[i] = (y[i] - gamma_t) % order
 
         #(7) theta and Theta vectors
         thlen = (2 * k) - 1
-        theta = list([None]) * thlen
-        Theta = list([None]) * (thlen + 1)
+        theta = [None] * thlen
+        Theta = [None] * (thlen + 1)
         for i in range((2 * k) - 1):
             theta[i] = randint(0, order - 1)
         Theta[0] = thenc(modulus, order, G, None, None, theta[0], y_hat[0])
@@ -66,21 +64,21 @@ class SimpleShuffle:
         c = self.v3Zc
 
         # Prover step 4
-        alpha = list([None]) * thlen
+        alpha = [None] * thlen
         runprod = c
         # (8)
         for i in range(k):
             # The one multiplication Neff was reffering to
-            runprod = (runprod * x_hat[i]) % order ## % To ixa order
+            runprod = (runprod * x_hat[i]) % order
             # The one division Neff was referring to
-            runprod = (runprod * gmpy2.invert(y_hat[i], order)) % order ## % modulus order to xa
-            alpha[i] = (theta[i] + runprod) % order ## % order
-        gammainverse = gmpy2.invert(gamma, order) ## % order
+            runprod = (runprod * gmpy2.invert(y_hat[i], order)) % order
+            alpha[i] = (theta[i] + runprod) % order
+        gammainverse = gmpy2.invert(gamma, order)
         rungamma = c
         # That is the second part of (8)
         for i in range(1, k):
-            rungamma = (rungamma * gammainverse) % order ## % order
-            alpha[thlen - i] = (theta[thlen - i] + rungamma) % order ## % order
+            rungamma = (rungamma * gammainverse) % order
+            alpha[thlen - i] = (theta[thlen - i] + rungamma) % order
 
         # Verifier step 5
         self.p4Zalpha = alpha
@@ -95,10 +93,9 @@ class SimpleShuffle:
         alpha = self.p4Zalpha
         # Validate vector lens
         k = len(Y)
-        print 'k is ' + str(k)
         thlen = (2 * k) - 1
         if k <= 1 or len(Y) != k or len(Theta) != thlen + 1 or len(alpha) != thlen:
-            print 'Something went wrong'
+            raise Exception('Something went wrong')
             return 0
         # TODO: Check for null stuff
         t = self.v1Zt
@@ -108,8 +105,8 @@ class SimpleShuffle:
         negt = (-t) % order  ##Fix modulus
         U = pow(G, negt, modulus)
         W = pow(Gamma, negt, modulus)
-        X_hat = list([None]) * k
-        Y_hat = list([None]) * k
+        X_hat = [None] * k
+        Y_hat = [None] * k
         for i in range(k):
             X_hat[i] = (X[i] * U) % modulus
             Y_hat[i] = (Y[i] * W) % modulus
@@ -118,19 +115,16 @@ class SimpleShuffle:
         s = 0
         b_good = True
         b_good = b_good and thver(
-            X_hat[0], Y_hat[0], Theta[0], P, Q, c, alpha[0], modulus)
+            X_hat[0], Y_hat[0], Theta[0], P, Q, c, alpha[0], modulus, order)
         for i in range(1, k):
-            b_good = b_good and thver(X_hat[i], Y_hat[i], Theta[i], P, Q, alpha[i - 1], alpha[i], modulus)
-            print 'Passed here 1'
+            b_good = b_good and thver(X_hat[i], Y_hat[i], Theta[i], P, Q, alpha[i - 1], alpha[i], modulus, order)
         for i in range(k, thlen):
             b_good = b_good and thver(
-                Gamma, G, Theta[i], P, Q, alpha[i - 1], alpha[i], modulus)
-            print 'Passed here 2'
+                Gamma, G, Theta[i], P, Q, alpha[i - 1], alpha[i], modulus, order)
         b_good = b_good and thver(
-            Gamma, G, Theta[thlen], P, Q, alpha[thlen - 1], c, modulus)
-        print b_good
+            Gamma, G, Theta[thlen], P, Q, alpha[thlen - 1], c, modulus, order)
         if not b_good:
-            print 'Incorrect poof'
+            raise Exception('Incorrect poof')
             return 0
         return 1
 
@@ -142,30 +136,22 @@ def thenc(modulus, order, G, a, b, c, d):
     if a == None or a == 0:
         ab = 0
     else:
-        ab = (a * b) % order #modulus
+        ab = (a * b) % order
     if c == None or c == 0:
         cd = 0
     else:
         if d == None or d == 0:
             cd = c
         else:
-            cd = (c * d) % order ##modulus
-    print 'ab = ' + str(ab)
-    print 'cd = ' + str(cd)
-    return pow(G, (ab - cd) % order, modulus) #modulus
+            cd = (c * d) % order
+    return pow(G, (ab - cd) % order, modulus)
 
-def thver(A, B, T, P, Q, a, b, modulus):
+def thver(A, B, T, P, Q, a, b, modulus, order):
     """Helper function in order to verify Theta elements"""
     P = pow(A, a, modulus)
-    print 'This is P: ' + str(P)
-    Q = pow(B, ((-b) % modulus), modulus)
-    print 'This is Q: ' + str(Q)
+    Q = pow(B, ((-b) % order), modulus)
     P = (P * Q) % modulus
-    print 'This is new P: ' + str(P)
-    print 'This is Taf: ' + str(T)
     if P == T:
-        print 'True'
         return True
     else:
-        print 'False'
         return False
