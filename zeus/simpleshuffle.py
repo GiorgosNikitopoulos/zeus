@@ -1,5 +1,6 @@
 import random
 import gmpy2
+import shuffle_random
 from datetime import datetime
 from random import randint
 
@@ -17,7 +18,6 @@ class SimpleShuffle(object):
     def Prove(self, modulus, order, G, gamma, x, y):
         """Prove function in Section 3 of Neff's paper"""
         k = self.k
-
         if k <= 1:
             raise Exception("Can't Shuffle length 1 vector")
         if k != len(y):
@@ -29,25 +29,31 @@ class SimpleShuffle(object):
             self.p0X[i] = pow(G, x[i], modulus)
             self.p0Y[i] = pow(G, y[i], modulus)
 
+        if self.p0X == [None] * k or self.p0Y == [None] * k:
+            raise Exception('Error')
+
         # Verifier Step 1: create t in Zq
-        self.v1Zt = randint(0, order - 1)
+        self.v1Zt = shuffle_random.shuffle_rand_int(1, 0, order - 1)
         t = self.v1Zt
 
+        if self.v1Zt == None:
+            raise Exception('Error')
+
         # Prover step 2
-        gamma_t = (gamma * t) % order
-        x_hat = [None] * k
+        gamma_t = (gamma * t) % order ##(gamma * t) variable
+        x_hat = [None] * k ##Inits
         y_hat = [None] * k
 
         for i in range(k):
-            x_hat[i] = (x[i] - t) % order
-            y_hat[i] = (y[i] - gamma_t) % order
+            x_hat[i] = (x[i] - t) % order ##(5)
+            y_hat[i] = (y[i] - gamma_t) % order ##(6)
 
-        #(7) theta and Theta vectors
+        #(7) theta and Theta vectors: Start
         thlen = (2 * k) - 1
         theta = [None] * thlen
         Theta = [None] * (thlen + 1)
         for i in range((2 * k) - 1):
-            theta[i] = randint(0, order - 1)
+            theta[i] = shuffle_random.shuffle_rand_int(1, 0, order - 1)
         Theta[0] = thenc(modulus, order, G, None, None, theta[0], y_hat[0])
         for i in range(1, k):
             Theta[i] = thenc(modulus, order, G, theta[i - 1],
@@ -59,14 +65,21 @@ class SimpleShuffle(object):
             modulus, order, G, theta[thlen - 1], gamma, None, None)
         self.p2Theta = Theta
 
+        if self.p2Theta == [None] * (2 * k):
+            raise Exception('Error')
+        #(7) theta and Theta vectors: End
+
         # Verifier Step 3
-        self.v3Zc = randint(0, order - 1)
+        self.v3Zc = shuffle_random.shuffle_rand_int(1, 0, order - 1)
         c = self.v3Zc
+
+        if self.v3Zc == None:
+            raise Exception('Error')
 
         # Prover step 4
         alpha = [None] * thlen
         runprod = c
-        # (8)
+        ## (8)
         for i in range(k):
             # The one multiplication Neff was reffering to
             runprod = (runprod * x_hat[i]) % order
@@ -83,6 +96,9 @@ class SimpleShuffle(object):
         # Verifier step 5
         self.p4Zalpha = alpha
 
+        if self.p4Zalpha == [None] * (2 * k - 1):
+            raise Exception('Error')
+
         return 1
 
     def Verify(self, modulus, order, G, Gamma):
@@ -96,23 +112,32 @@ class SimpleShuffle(object):
         thlen = (2 * k) - 1
         if k <= 1 or len(Y) != k or len(Theta) != thlen + 1 or len(alpha) != thlen:
             raise Exception('Something went wrong')
-            return 0
-        # TODO: Check for null stuff
+        if self.p0X == [None] * k or self.p0Y == [None] * k:
+            raise Exception('Error')
+        if self.v1Zt == None:
+            raise Exception('Error')
+        if self.p2Theta == [None] * (2 * k):
+            raise Exception('Error')
+        if self.v3Zc == None:
+            raise Exception('Error')
+        if self.p4Zalpha == [None] * (2 * k - 1):
+            raise Exception('Error')
         t = self.v1Zt
         c = self.v3Zc
 
         # Verifier step 5
-        negt = (-t) % order  ##Fix modulus
-        U = pow(G, negt, modulus)
-        W = pow(Gamma, negt, modulus)
-        X_hat = [None] * k
+        negt = (-t) % order #find -t
+        U = pow(G, negt, modulus) #(10)
+        W = pow(Gamma, negt, modulus) #(10)
+        X_hat = [None] * k #Init
         Y_hat = [None] * k
         for i in range(k):
-            X_hat[i] = (X[i] * U) % modulus
-            Y_hat[i] = (Y[i] * W) % modulus
+            X_hat[i] = (X[i] * U) % modulus #(11)
+            Y_hat[i] = (Y[i] * W) % modulus #(11)
         P = 0
         Q = 0
         s = 0
+        #(12) Start
         b_good = True
         b_good = b_good and thver(
             X_hat[0], Y_hat[0], Theta[0], P, Q, c, alpha[0], modulus, order)
@@ -125,9 +150,8 @@ class SimpleShuffle(object):
             Gamma, G, Theta[thlen], P, Q, alpha[thlen - 1], c, modulus, order)
         if not b_good:
             raise Exception('Incorrect poof')
-            return 0
-        return 1
-
+        #(12) End
+        return
 
 def thenc(modulus, order, G, a, b, c, d):
     """Helper function in order to compute G^(ab-cd)"""

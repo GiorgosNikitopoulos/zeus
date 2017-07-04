@@ -1,4 +1,4 @@
-from pairshuffle_test import PairShuffle_test
+from pairshuffle import PairShuffle
 from Crypto.PublicKey import ElGamal
 from Crypto.Random import random
 from Crypto import Random
@@ -13,7 +13,7 @@ def main():
     ##key = ElGamal.generate(512, Random.new().read)
 ##    q = (key.p - 1) / 2
     p = 10198267722357351868598076141027380280417188309231803909918464305012113541414604537422741096561285049775792035177041672305646773132014126091142862443826263
-    q = 50991338611786759342990380705136901402085941546159019549592321525060567707073022687113705482806425248878960175885208361528233865660070630455714312219131313
+    q = 5099133861178675934299038070513690140208594154615901954959232152506056770707302268711370548280642524887896017588520836152823386566007063045571431221913131
     g = 4
     h =  random.getrandbits(512)
     H = pow(g, h, p)
@@ -31,16 +31,10 @@ def main():
         X[i] = pow(g, r, p)
         Y[i] = pow(H, r, p)
         Y[i] = (Y[i] * C[i]) % p
-    pairshuffle_obj = PairShuffle_test(p, 5)
-    print hex(p)
-    print hex(q)
-    print hex(g)
-##    print hex(X)
-##    print hex(Y)
-    Resoolt1, Resoolt2, b_var = pairshuffle_obj.go_shuffle_shuffle(p, q, g, H, X, Y)
-##    print hex(Resoolt1)
-##    print hex(Resoolt2)
-    print hex(b_var)
+    pairshuffle_obj = PairShuffle(p, 5)
+    Xbar, Ybar = pairshuffle_obj.go_shuffle_shuffle(p, q, g, H, X, Y)
+    b_var = pairshuffle_obj.go_shuffle_verify(p, q, g, H, X, Y, Xbar, Ybar)
+    print b_var
 
 if __name__ == "__main__":
     main()
